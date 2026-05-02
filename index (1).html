@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>职业探索之旅 - 发现你的理想职业</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    .animate-pulse-custom {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, createContext, useContext } = React;
+
+    // ==================== 数据定义 ====================
+    const careers = [
+      {
+        id: '1', title: '软件工程师', category: '科技',
+        description: '设计、开发和维护软件系统，创造改变世界的产品。',
+        salary: '20-40k/月', outlook: '前景广阔',
+        skills: ['编程', '算法', '系统设计', '团队协作'],
+        tags: ['创新', '高薪', '挑战'],
+        icon: 'code', gradient: 'from-blue-500 to-cyan-400'
+      },
+      {
+        id: '2', title: '产品设计师', category: '创意',
+        description: '将创意转化为优雅的用户体验，设计美观且实用的产品。',
+        salary: '15-30k/月', outlook: '需求增长',
+        skills: ['UI设计', 'UX设计', '用户研究', '视觉美学'],
+        tags: ['创意', '美学', '用户至上'],
+        icon: 'palette', gradient: 'from-pink-500 to-rose-400'
+      },
+      {
+        id: '3', title: '数据科学家', category: '分析',
+        description: '从海量数据中发现洞察，用数据驱动决策。',
+        salary: '25-45k/月', outlook: '非常热门',
+        skills: ['机器学习', '统计分析', 'Python', '数据可视化'],
+        tags: ['数据', 'AI', '高薪'],
+        icon: 'brain', gradient: 'from-purple-500 to-indigo-400'
+      },
+      {
+        id: '4', title: '市场营销', category: '商业',
+        description: '连接品牌与用户，创造有影响力的营销活动。',
+        salary: '12-25k/月', outlook: '稳定发展',
+        skills: ['市场分析', '品牌建设', '内容营销', '数字营销'],
+        tags: ['创意', '社交', '影响力'],
+        icon: 'megaphone', gradient: 'from-orange-500 to-amber-400'
+      },
+      {
+        id: '5', title: '医生', category: '医疗',
+        description: '守护生命健康，给予患者希望和关怀。',
+        salary: '20-50k/月', outlook: '崇高职业',
+        skills: ['医学知识', '临床诊断', '沟通能力', '同理心'],
+        tags: ['责任', '奉献', '尊重'],
+        icon: 'heart', gradient: 'from-red-500 to-pink-400'
+      },
+      {
+        id: '6', title: '创业者', category: '商业',
+        description: '将梦想变为现实，从零开始创造未来。',
+        salary: '不确定', outlook: '无限可能',
+        skills: ['领导力', '创新思维', '抗压力', '资源整合'],
+        tags: ['冒险', '创新', '领导力'],
+        icon: 'rocket', gradient: 'from-green-500 to-emerald-400'
+      },
+      {
+        id: '7', title: '建筑师', category: '创意',
+        description: '设计空间之美，创造永恒的建筑艺术品。',
+        salary: '15-30k/月', outlook: '创意无限',
+        skills: ['建筑设计', '空间想象', '绘图软件', '美学素养'],
+        tags: ['美学', '空间', '永恒'],
+        icon: 'building', gradient: 'from-teal-500 to-cyan-400'
+      },
+      {
+        id: '8', title: '教师', category: '教育',
+        description: '点燃知识的火种，照亮学生的未来之路。',
+        salary: '10-20k/月', outlook: '光荣使命',
+        skills: ['教育心理学', '学科知识', '沟通技巧', '耐心'],
+        tags: ['奉献', '希望', '传承'],
+        icon: 'graduation', gradient: 'from-yellow-500 to-orange-400'
+      },
+      {
+        id: '9', title: '前端开发工程师', category: '科技',
+        description: '将设计变为现实，构建优雅的用户界面。',
+        salary: '18-35k/月', outlook: '需求旺盛',
+        skills: ['React', 'Vue', 'CSS', 'JavaScript', 'TypeScript'],
+        tags: ['开发', '前端', '交互'],
+        icon: 'terminal', gradient: 'from-indigo-500 to-blue-400'
+      },
+      {
+        id: '10', title: 'AI 人工智能工程师', category: '科技',
+        description: '创造智能的未来，让机器学会思考和学习。',
+        salary: '30-60k/月', outlook: '未来可期',
+        skills: ['深度学习', '神经网络', 'PyTorch', 'TensorFlow'],
+        tags: ['AI', '前沿', '创新'],
+        icon: 'bot', gradient: 'from-violet-500 to-purple-400'
+      },
+      {
+        id: '11', title: '游戏设计师', category: '创意',
+        description: '创造沉浸式的游戏体验，让玩家进入想象世界。',
+        salary: '12-28k/月', outlook: '有趣好玩',
+        skills: ['游戏设计', '关卡策划', 'Unity', '游戏引擎'],
+        tags: ['游戏', '创意', '娱乐'],
+        icon: 'gamepad', gradient: 'from-fuchsia-500 to-pink-400'
+      },
+      {
+        id: '12', title: '视频剪辑师', category: '创意',
+        description: '用镜头讲述故事，将素材剪辑成动人的作品。',
+        salary: '10-25k/月', outlook: '创意表达',
+        skills: ['Premiere', 'After Effects', '剪辑', '色彩校正'],
+        tags: ['视频', '剪辑', '创意'],
+        icon: 'video', gradient: 'from-rose-500 to-red-400'
+      },
+      {
+        id: '13', title: '律师', category: '社会',
+        description: '维护法律尊严，为当事人争取公平正义。',
+        salary: '20-50k/月', outlook: '专业严谨',
+        skills: ['法律研究', '辩护技巧', '合同审查', '谈判'],
+        tags: ['法律', '正义', '专业'],
+        icon: 'scale', gradient: 'from-slate-500 to-gray-400'
+      },
+      {
+        id: '14', title: '心理咨询师', category: '社会',
+        description: '倾听心灵的声音，帮助人们走出困境。',
+        salary: '12-25k/月', outlook: '温暖治愈',
+        skills: ['心理咨询', '共情能力', '倾听', '心理治疗'],
+        tags: ['心理', '治愈', '关爱'],
+        icon: 'heartCircle', gradient: 'from-pink-400 to-red-300'
+      },
+      {
+        id: '15', title: '厨师', category: '生活',
+        description: '用食材创造美味，让每道菜都是艺术品。',
+        salary: '8-20k/月', outlook: '美食无限',
+        skills: ['烹饪技巧', '食材搭配', '创意菜品', '刀工'],
+        tags: ['美食', '烹饪', '艺术'],
+        icon: 'utensils', gradient: 'from-orange-400 to-yellow-300'
+      },
+      {
+        id: '16', title: '摄影师', category: '创意',
+        description: '用镜头捕捉瞬间，将美好定格为永恒。',
+        salary: '10-25k/月', outlook: '艺术创作',
+        skills: ['摄影技巧', '构图', '后期处理', '光影运用'],
+        tags: ['摄影', '艺术', '记录'],
+        icon: 'camera', gradient: 'from-amber-500 to-orange-400'
+      },
+      {
+        id: '17', title: '新闻记者', category: '社会',
+        description: '传递真相，记录时代的声音。',
+        salary: '10-20k/月', outlook: '新闻理想',
+        skills: ['新闻写作', '采访技巧', '深度调查', '事实核查'],
+        tags: ['新闻', '真相', '报道'],
+        icon: 'newspaper', gradient: 'from-zinc-500 to-slate-400'
+      },
+      {
+        id: '18', title: '平面设计师', category: '创意',
+        description: '用视觉语言沟通，设计美观且有意义的作品。',
+        salary: '10-22k/月', outlook: '创意设计',
+        skills: ['Photoshop', 'Illustrator', '平面设计', '排版'],
+        tags: ['设计', '平面', '视觉'],
+        icon: 'shapes', gradient: 'from-cyan-500 to-blue-400'
+      },
+      {
+        id: '19', title: '金融分析师', category: '商业',
+        description: '分析市场趋势，为投资决策提供专业建议。',
+        salary: '18-40k/月', outlook: '金融前沿',
+        skills: ['财务分析', '投资策略', 'Excel', '数据建模'],
+        tags: ['金融', '分析', '投资'],
+        icon: 'trending', gradient: 'from-green-500 to-emerald-400'
+      },
+      {
+        id: '20', title: '项目经理', category: '商业',
+        description: '将想法变为现实，协调资源推进项目落地。',
+        salary: '15-35k/月', outlook: '管理协调',
+        skills: ['项目管理', '沟通协调', '风险管理', '敏捷开发'],
+        tags: ['管理', '项目', '协调'],
+        icon: 'dashboard', gradient: 'from-indigo-500 to-violet-400'
+      },
+      {
+        id: '21', title: '区块链开发者', category: '科技',
+        description: '构建去中心化的未来，创造信任的技术基础。',
+        salary: '30-60k/月', outlook: '前沿科技',
+        skills: ['Solidity', '智能合约', 'Web3', '以太坊'],
+        tags: ['区块链', 'Web3', '前沿'],
+        icon: 'bitcoin', gradient: 'from-amber-500 to-yellow-400'
+      },
+      {
+        id: '22', title: '生物学家', category: '科学',
+        description: '探索生命的奥秘，研究生物的结构和功能。',
+        salary: '12-30k/月', outlook: '科学探索',
+        skills: ['实验设计', '数据分析', 'PCR', '显微镜操作'],
+        tags: ['生物', '科学', '研究'],
+        icon: 'dna', gradient: 'from-lime-500 to-green-400'
+      },
+      {
+        id: '23', title: '航天工程师', category: '科技',
+        description: '设计飞向宇宙的载具，实现人类的太空梦想。',
+        salary: '25-50k/月', outlook: '航天梦想',
+        skills: ['航天工程', '系统设计', '流体力学', '控制理论'],
+        tags: ['航天', '航空', '工程'],
+        icon: 'plane', gradient: 'from-blue-500 to-sky-400'
+      },
+      {
+        id: '24', title: '时装设计师', category: '创意',
+        description: '创造时尚的语言，让服装成为表达自我的方式。',
+        salary: '10-30k/月', outlook: '时尚前沿',
+        skills: ['服装设计', '面料知识', '手绘', '时尚趋势'],
+        tags: ['时尚', '设计', '服装'],
+        icon: 'shirt', gradient: 'from-rose-500 to-fuchsia-400'
+      },
+      {
+        id: '25', title: '演员', category: '艺术',
+        description: '演绎不同的人生，用表演传递情感和故事。',
+        salary: '差异巨大', outlook: '艺术追求',
+        skills: ['表演技巧', '台词', '肢体语言', '角色理解'],
+        tags: ['表演', '艺术', '舞台'],
+        icon: 'star', gradient: 'from-amber-500 to-yellow-400'
+      },
+      {
+        id: '26', title: '音乐家', category: '艺术',
+        description: '用音符表达情感，创造动人的音乐作品。',
+        salary: '差异巨大', outlook: '音乐梦想',
+        skills: ['乐器演奏', '作曲', '音乐理论', '编曲'],
+        tags: ['音乐', '艺术', '创作'],
+        icon: 'music', gradient: 'from-violet-500 to-purple-400'
+      },
+      {
+        id: '27', title: '作家', category: '艺术',
+        description: '用文字构建世界，讲述精彩的故事。',
+        salary: '差异巨大', outlook: '文字魅力',
+        skills: ['写作技巧', '故事构思', '人物塑造', '文字表达'],
+        tags: ['文学', '创作', '故事'],
+        icon: 'book', gradient: 'from-slate-500 to-gray-400'
+      },
+      {
+        id: '28', title: 'UI/UX 设计师', category: '创意',
+        description: '优化用户体验，让产品既美观又好用。',
+        salary: '15-32k/月', outlook: '用户体验',
+        skills: ['Figma', '用户研究', '原型设计', '设计系统'],
+        tags: ['UI', 'UX', '用户体验'],
+        icon: 'smartphone', gradient: 'from-cyan-500 to-teal-400'
+      },
+      {
+        id: '29', title: '护士', category: '医疗',
+        description: '守护患者的健康，给予最贴心的照顾。',
+        salary: '10-20k/月', outlook: '白衣天使',
+        skills: ['护理技术', '患者沟通', '急救', '药物管理'],
+        tags: ['护理', '医疗', '关爱'],
+        icon: 'heartPulse', gradient: 'from-red-400 to-rose-300'
+      },
+      {
+        id: '30', title: '软件测试工程师', category: '科技',
+        description: '保障软件质量，发现每个潜在的问题。',
+        salary: '15-30k/月', outlook: '质量保障',
+        skills: ['测试技术', '自动化测试', 'Bug追踪', '性能测试'],
+        tags: ['测试', '质量', '技术'],
+        icon: 'shield', gradient: 'from-emerald-500 to-green-400'
+      }
+    ];
+
+    // 20道精选职业测试题目（行为锚定设计）
+    const questions = [
+      {
+        id: 'q1',
+        text: '周末下午，你最可能在哪？',
+        options: [
+          { id: 'q1a', text: '对着电脑写代码/调试程序', score: { tech: 3, analysis: 2 } },
+          { id: 'q1b', text: '逛设计网站/画画/做手账', score: { creative: 3, art: 2 } },
+          { id: 'q1c', text: '读专业书籍/上在线课程', score: { education: 2, medical: 2, science: 2 } },
+          { id: 'q1d', text: '参加社交活动/约朋友吃饭', score: { business: 3, social: 2, education: 1 } }
+        ]
+      },
+      {
+        id: 'q2',
+        text: '项目遇到重大bug或失败时，你首先会？',
+        options: [
+          { id: 'q2a', text: '冷静分析日志，定位根因', score: { tech: 3, analysis: 3 } },
+          { id: 'q2b', text: '推翻重来，寻找更优解法', score: { creative: 2, tech: 1 } },
+          { id: 'q2c', text: '召集会议，听取多方意见', score: { business: 3, social: 2 } },
+          { id: 'q2d', text: '安慰团队，整理经验教训', score: { medical: 2, education: 3, social: 2 } }
+        ]
+      },
+      {
+        id: 'q3',
+        text: '你更喜欢什么样的工作环境？',
+        options: [
+          { id: 'q3a', text: '安静专注，可以沉浸式工作', score: { tech: 3, creative: 2, science: 2 } },
+          { id: 'q3b', text: '开放自由，充满创意氛围', score: { creative: 3, art: 2 } },
+          { id: 'q3c', text: '温馨和谐，人情味浓厚', score: { medical: 3, education: 2, social: 2 } },
+          { id: 'q3d', text: '紧张高效，目标导向明确', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q4',
+        text: '拿到一笔50万资金，你会？',
+        options: [
+          { id: 'q4a', text: '投入技术研发或购买设备', score: { tech: 3, science: 2 } },
+          { id: 'q4b', text: '打造品牌形象，做市场营销', score: { business: 2, creative: 1 } },
+          { id: 'q4c', text: '招聘人才，扩大团队规模', score: { business: 3 } },
+          { id: 'q4d', text: '存起来，先小规模验证', score: { analysis: 2, business: 1 } }
+        ]
+      },
+      {
+        id: 'q5',
+        text: '你更容易被什么类型的故事打动？',
+        options: [
+          { id: 'q5a', text: '科技改变世界的传奇故事', score: { tech: 3, science: 2 } },
+          { id: 'q5b', text: '艺术家追求极致的奋斗史', score: { creative: 3, art: 2 } },
+          { id: 'q5c', text: '医生救死扶伤的感人瞬间', score: { medical: 3, social: 2 } },
+          { id: 'q5d', text: '创业者从零到一的冒险旅程', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q6',
+        text: '你擅长表达自己的方式是什么？',
+        options: [
+          { id: 'q6a', text: '写详细的技术文档或报告', score: { tech: 3, analysis: 2 } },
+          { id: 'q6b', text: '画图、做PPT、视觉化呈现', score: { creative: 3, art: 2 } },
+          { id: 'q6c', text: '一对一深入交流，循循善诱', score: { education: 3, medical: 2, social: 2 } },
+          { id: 'q6d', text: '公开发言，激励和说服他人', score: { business: 3, education: 1 } }
+        ]
+      },
+      {
+        id: 'q7',
+        text: '看到一幅很丑的用户界面，你会？',
+        options: [
+          { id: 'q7a', text: '默默忍受，继续用功能就行', score: { tech: 2, analysis: 2 } },
+          { id: 'q7b', text: '忍不住想动手重新设计一遍', score: { creative: 3, art: 2 } },
+          { id: 'q7c', text: '给开发者留言提建议', score: { social: 2, business: 1 } },
+          { id: 'q7d', text: '思考背后的商业决策逻辑', score: { business: 2, analysis: 2 } }
+        ]
+      },
+      {
+        id: 'q8',
+        text: '你更喜欢处理什么样的数据？',
+        options: [
+          { id: 'q8a', text: '代码、API、结构化数据', score: { tech: 3 } },
+          { id: 'q8b', text: '用户行为、转化率、留存', score: { business: 3, analysis: 2 } },
+          { id: 'q8c', text: '用户反馈、满意度评分', score: { education: 2, medical: 2 } },
+          { id: 'q8d', text: '实验结果、统计分析', score: { science: 3, analysis: 2 } }
+        ]
+      },
+      {
+        id: 'q9',
+        text: '如果只能选一个，你会更看重？',
+        options: [
+          { id: 'q9a', text: '技术深度，成为领域专家', score: { tech: 3, science: 2 } },
+          { id: 'q9b', text: '艺术表达，创造独特作品', score: { creative: 3, art: 3 } },
+          { id: 'q9c', text: '帮助他人，获得成就感', score: { medical: 3, education: 3, social: 2 } },
+          { id: 'q9d', text: '商业成功，创造财富', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q10',
+        text: '你处理"模糊需求"的方式是？',
+        options: [
+          { id: 'q10a', text: '画原型，先做再说', score: { creative: 3, tech: 1 } },
+          { id: 'q10b', text: '列出详细问题清单，一一确认', score: { medical: 2, education: 2, tech: 2 } },
+          { id: 'q10c', text: '做竞品分析，找行业惯例', score: { business: 2, analysis: 2 } },
+          { id: 'q10d', text: '用技术方案倒推需求合理性', score: { tech: 3, analysis: 2 } }
+        ]
+      },
+      {
+        id: 'q11',
+        text: '你理想的团队规模是？',
+        options: [
+          { id: 'q11a', text: '2-5人小团队，精兵强将', score: { tech: 2, creative: 2 } },
+          { id: 'q11b', text: '独立工作，有足够创作空间', score: { creative: 3, art: 2 } },
+          { id: 'q11c', text: '10-30人，分工明确', score: { business: 2, medical: 2 } },
+          { id: 'q11d', text: '大团队，资源丰富平台大', score: { business: 2, education: 1 } }
+        ]
+      },
+      {
+        id: 'q12',
+        text: '你更喜欢什么样的客户/用户？',
+        options: [
+          { id: 'q12a', text: '技术型用户，懂产品逻辑', score: { tech: 3 } },
+          { id: 'q12b', text: '审美在线，愿意为设计付费', score: { creative: 3, art: 2 } },
+          { id: 'q12c', text: '真诚友善，尊重专业意见', score: { medical: 2, education: 2, social: 3 } },
+          { id: 'q12d', text: '目标导向，重视商业回报', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q13',
+        text: '当你压力大时，你通常会？',
+        options: [
+          { id: 'q13a', text: '写代码/做项目，沉浸其中', score: { tech: 3 } },
+          { id: 'q13b', text: '听音乐/画画/创作来放松', score: { creative: 3, art: 2 } },
+          { id: 'q13c', text: '找人倾诉或做心理咨询', score: { social: 2, education: 2 } },
+          { id: 'q13d', text: '运动出汗，彻底放空大脑', score: { business: 2, tech: 1 } }
+        ]
+      },
+      {
+        id: 'q14',
+        text: '你更愿意在哪个领域深耕？',
+        options: [
+          { id: 'q14a', text: 'AI/云计算/区块链等前沿技术', score: { tech: 3, science: 2 } },
+          { id: 'q14b', text: '用户体验/品牌设计/创意领域', score: { creative: 3, art: 2 } },
+          { id: 'q14c', text: '医疗健康/教育培训领域', score: { medical: 3, education: 2 } },
+          { id: 'q14d', text: '金融投资/企业管理领域', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q15',
+        text: '你更喜欢什么样的工作节奏？',
+        options: [
+          { id: 'q15a', text: '弹性工作，专注结果不打卡', score: { tech: 2, creative: 2 } },
+          { id: 'q15b', text: '规律作息，朝九晚五稳定', score: { medical: 2, education: 2 } },
+          { id: 'q15c', text: '项目制冲刺，有忙有闲', score: { creative: 2, business: 2 } },
+          { id: 'q15d', text: '快节奏多线程，挑战极限', score: { business: 3, tech: 1 } }
+        ]
+      },
+      {
+        id: 'q16',
+        text: '你擅长从什么角度发现问题？',
+        options: [
+          { id: 'q16a', text: '技术漏洞/代码缺陷', score: { tech: 3, science: 1 } },
+          { id: 'q16b', text: '用户体验/审美问题', score: { creative: 3, art: 2 } },
+          { id: 'q16c', text: '流程漏洞/沟通障碍', score: { business: 2, social: 2 } },
+          { id: 'q16d', text: '人文关怀/情感需求', score: { medical: 2, education: 2, social: 2 } }
+        ]
+      },
+      {
+        id: 'q17',
+        text: '你希望5年后成为什么样的人？',
+        options: [
+          { id: 'q17a', text: '技术大牛，有专利/开源作品', score: { tech: 3, science: 2 } },
+          { id: 'q17b', text: '知名设计师，有代表作', score: { creative: 3, art: 2 } },
+          { id: 'q17c', text: '学科专家/科室负责人', score: { medical: 2, education: 2 } },
+          { id: 'q17d', text: '创业成功者/企业高管', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q18',
+        text: '你更喜欢用哪种方式学习新技能？',
+        options: [
+          { id: 'q18a', text: '看官方文档，边用边学', score: { tech: 3 } },
+          { id: 'q18b', text: '临摹优秀案例，模仿学习', score: { creative: 2, art: 3 } },
+          { id: 'q18c', text: '系统看书/上课，打好基础', score: { education: 2, medical: 2, science: 2 } },
+          { id: 'q18d', text: '做项目实战，从实战中成长', score: { business: 2, creative: 1 } }
+        ]
+      },
+      {
+        id: 'q19',
+        text: '你更看重工作的什么回报？',
+        options: [
+          { id: 'q19a', text: '解决难题的成就感', score: { tech: 3, science: 2 } },
+          { id: 'q19b', text: '作品被认可的口碑', score: { creative: 3, art: 2 } },
+          { id: 'q19c', text: '帮助他人的社会价值', score: { medical: 3, education: 2, social: 2 } },
+          { id: 'q19d', text: '高薪和股权的财富回报', score: { business: 3 } }
+        ]
+      },
+      {
+        id: 'q20',
+        text: '如果明天退休，你最可能后悔没做什么？',
+        options: [
+          { id: 'q20a', text: '没有做出有影响力的产品', score: { tech: 2, creative: 2 } },
+          { id: 'q20b', text: '没有坚持自己的艺术追求', score: { creative: 2, art: 3 } },
+          { id: 'q20c', text: '没有培养出优秀的学生/徒弟', score: { education: 3, social: 2 } },
+          { id: 'q20d', text: '没有创业实现财务自由', score: { business: 3 } }
+        ]
+      }
+    ];
+
+    const categoryToCareers = {
+      tech: ['1', '9', '10', '21', '23', '30'],
+      creative: ['2', '7', '11', '12', '16', '18', '24', '28'],
+      analysis: ['3', '19'],
+      business: ['4', '6', '20'],
+      medical: ['5', '29'],
+      education: ['8'],
+      social: ['13', '14', '17'],
+      art: ['25', '26', '27'],
+      science: ['22'],
+      life: ['15']
+    };
+
+    // ==================== 图标组件 ====================
+    const Icons = {
+      code: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>,
+      palette: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>,
+      brain: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
+      megaphone: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>,
+      heart: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
+      rocket: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /></svg>,
+      building: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+      graduation: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>,
+      terminal: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+      bot: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+      gamepad: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
+      video: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>,
+      scale: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>,
+      heartCircle: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><circle cx="12" cy="12" r="10" strokeWidth={2} /></svg>,
+      utensils: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+      camera: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+      newspaper: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>,
+      shapes: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>,
+      trending: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>,
+      dashboard: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>,
+      bitcoin: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      dna: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>,
+      plane: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>,
+      shirt: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6l.004.111a8.242 8.242 0 00-.111 1.112l.112.222L12 14l6.495-6.567a8.236 8.236 0 00-.111-1.112L18 6M6 6l6 18" /></svg>,
+      star: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
+      music: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>,
+      book: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+      smartphone: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
+      heartPulse: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.5 14.5L12 12M15 9.5l-3 3M12 9.5V14.5" /></svg>,
+      shield: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
+      sparkles: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
+      home: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
+      compass: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+      user: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+      play: () => <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>,
+      search: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
+      arrowLeft: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
+      arrowRight: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>,
+      check: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>,
+      trophy: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
+      refresh: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+      edit: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+      calendar: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+      clock: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    };
+
+    const IconComponent = ({ name }) => {
+      const Icon = Icons[name] || Icons.sparkles;
+      return <Icon />;
+    };
+
+    // ==================== 状态管理 ====================
+    const AppContext = createContext();
+
+    const useAppContext = () => useContext(AppContext);
+
+    const AppProvider = ({ children }) => {
+      const [state, setState] = useState(() => {
+        const saved = localStorage.getItem('careerAppState');
+        return saved ? JSON.parse(saved) : {
+          user: { name: '探索者', testHistory: [], favorites: [] },
+          currentQuestion: 0,
+          answers: {},
+          currentMatches: []
+        };
+      });
+
+      useEffect(() => {
+        localStorage.setItem('careerAppState', JSON.stringify(state));
+      }, [state]);
+
+      const setUserName = (name) => setState(s => ({ ...s, user: { ...s.user, name } }));
+      const setCurrentQuestion = (index) => setState(s => ({ ...s, currentQuestion: index }));
+      const setAnswer = (questionId, optionId) => setState(s => ({
+        ...s, answers: { ...s.answers, [questionId]: optionId }
+      }));
+
+      const toggleFavorite = (careerId) => setState(s => ({
+        ...s,
+        user: {
+          ...s.user,
+          favorites: s.user.favorites.includes(careerId)
+            ? s.user.favorites.filter(id => id !== careerId)
+            : [...s.user.favorites, careerId]
+        }
+      }));
+
+      const calculateMatches = () => {
+        const { answers } = state;
+        const scores = {};
+
+        Object.entries(answers).forEach(([questionId, optionId]) => {
+          const question = questions.find(q => q.id === questionId);
+          const option = question?.options.find(o => o.id === optionId);
+          if (option?.score) {
+            Object.entries(option.score).forEach(([category, score]) => {
+              scores[category] = (scores[category] || 0) + score;
+            });
+          }
+        });
+
+        const careerScores = {};
+        Object.entries(scores).forEach(([category, score]) => {
+          const careerIds = categoryToCareers[category] || [];
+          careerIds.forEach(id => {
+            careerScores[id] = (careerScores[id] || 0) + score;
+          });
+        });
+
+        const matches = Object.entries(careerScores)
+          .map(([careerId, score]) => {
+            const career = careers.find(c => c.id === careerId);
+            return career ? { career, score } : null;
+          })
+          .filter(m => m !== null)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 3);
+
+        const maxScore = matches[0]?.score || 1;
+        const normalized = matches.map(m => ({
+          ...m,
+          score: Math.round((m.score / maxScore) * 100)
+        }));
+
+        setState(s => ({ ...s, currentMatches: normalized }));
+        return normalized;
+      };
+
+      const addTestResult = (matches) => setState(s => ({
+        ...s,
+        user: {
+          ...s.user,
+          testHistory: [{
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            matches
+          }, ...s.user.testHistory]
+        }
+      }));
+
+      const resetTest = () => setState(s => ({
+        ...s, currentQuestion: 0, answers: {}, currentMatches: []
+      }));
+
+      return (
+        <AppContext.Provider value={{
+          state, setUserName, setCurrentQuestion, setAnswer,
+          toggleFavorite, calculateMatches, addTestResult, resetTest
+        }}>
+          {children}
+        </AppContext.Provider>
+      );
+    };
+
+    // ==================== 职业卡片组件 ====================
+    const CareerCard = ({ career, score, showDetails = false, onClick }) => {
+      const { state, toggleFavorite } = useAppContext();
+      const isFavorite = state.user.favorites.includes(career.id);
+
+      return (
+        <div
+          onClick={onClick}
+          className="relative bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-pointer animate-fade-in"
+        >
+          <div className={`h-2 bg-gradient-to-r ${career.gradient}`} />
+          
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${career.gradient} flex items-center justify-center text-white shadow-lg`}>
+                <IconComponent name={career.icon} />
+              </div>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(career.id);
+                }}
+                className={`p-2 rounded-full transition-all duration-300 ${
+                  isFavorite ? 'bg-pink-100 text-pink-500' : 'bg-gray-100 text-gray-400'
+                }`}
+              >
+                <svg className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-800 mb-2">{career.title}</h3>
+            <p className="text-sm text-gray-500 mb-3">{career.category}</p>
+            
+            {score !== undefined && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">匹配度</span>
+                  <span className="font-bold text-purple-600">{score}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r transition-all duration-1000 ${career.gradient}`}
+                    style={{ width: `${score}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {showDetails && (
+              <>
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">{career.description}</p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">薪资范围</span>
+                    <span className="text-sm font-semibold text-green-600">{career.salary}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">前景</span>
+                    <span className="text-sm font-semibold text-blue-600">{career.outlook}</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {career.tags.map((tag, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-xs text-gray-400 mb-2">关键技能</p>
+                  <div className="flex flex-wrap gap-2">
+                    {career.skills.map((skill, idx) => (
+                      <span key={idx} className={`px-3 py-1 text-xs rounded-full bg-gradient-to-r text-white ${career.gradient}`}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 导航栏 ====================
+    const Navbar = ({ currentPage, onNavigate }) => {
+      const navItems = [
+        { id: 'home', icon: 'home', label: '首页' },
+        { id: 'explore', icon: 'compass', label: '探索' },
+        { id: 'profile', icon: 'user', label: '我的' }
+      ];
+
+      return (
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-4 py-3 z-50">
+          <div className="max-w-lg mx-auto flex items-center justify-between">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-300 ${
+                  currentPage === item.id
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg'
+                    : 'text-gray-400'
+                }`}
+              >
+                <IconComponent name={item.icon} />
+                <span className="text-xs font-medium">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+      );
+    };
+
+    // ==================== 首页 ====================
+    const HomePage = ({ onNavigate }) => {
+      const { state } = useAppContext();
+      
+      const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return '早上好';
+        if (hour < 18) return '下午好';
+        return '晚上好';
+      };
+
+      const features = [
+        { icon: 'play', title: '职业测试', desc: '20道题精准匹配', page: 'test', gradient: 'from-purple-500 to-indigo-500' },
+        { icon: 'compass', title: '探索职业', desc: '30+热门职业', page: 'explore', gradient: 'from-blue-500 to-cyan-400' },
+        { icon: 'heart', title: '收藏夹', desc: '保存感兴趣的', page: 'profile', gradient: 'from-pink-500 to-rose-400' },
+        { icon: 'user', title: '个人中心', desc: '查看测试记录', page: 'profile', gradient: 'from-green-500 to-emerald-400' }
+      ];
+
+      return (
+        <div className="min-h-screen pb-24 pt-6 px-4 bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
+          <div className="max-w-lg mx-auto">
+            <div className="mb-8 animate-fade-in">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="text-purple-500"><IconComponent name="sparkles" /></div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  职业探索之旅
+                </h1>
+              </div>
+              <p className="text-gray-600 text-lg">{getGreeting()}，{state.user.name}！今天想探索什么？</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {features.map((feature, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onNavigate(feature.page)}
+                  className="group relative bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 text-left animate-fade-in"
+                  style={{ animationDelay: `${idx * 0.1}s` }}
+                >
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white mb-3`}>
+                    <IconComponent name={feature.icon} />
+                  </div>
+                  <h3 className="font-bold text-gray-800 mb-1">{feature.title}</h3>
+                  <p className="text-sm text-gray-500">{feature.desc}</p>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => onNavigate('test')}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 mb-8 animate-fade-in"
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-left">
+                  <h3 className="text-xl font-bold mb-1">开始测试 🚀</h3>
+                  <p className="text-purple-100 text-sm">20道题，精准匹配理想职业</p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-full p-2"><IconComponent name="play" /></div>
+              </div>
+            </button>
+
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-800">热门职业</h2>
+                <button onClick={() => onNavigate('explore')} className="text-purple-600 text-sm font-medium">
+                  查看全部
+                </button>
+              </div>
+              
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4">
+                {careers.slice(0, 4).map((career) => (
+                  <div key={career.id} className="w-72 flex-shrink-0">
+                    <CareerCard career={career} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-3xl p-6 text-center animate-fade-in">
+              <div className="text-purple-500 mb-3"><IconComponent name="sparkles" /></div>
+              <p className="text-gray-700 font-medium leading-relaxed">
+                "选择你喜欢的工作，你一生都不会觉得是在工作。"
+              </p>
+              <p className="text-gray-500 text-sm mt-2">— 孔子</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 职业测试页 ====================
+    const TestPage = ({ onNavigate }) => {
+      const { state, setCurrentQuestion, setAnswer, calculateMatches, addTestResult, resetTest } = useAppContext();
+      const [isTransitioning, setIsTransitioning] = useState(false);
+
+      useEffect(() => {
+        resetTest();
+      }, []);
+
+      const currentQ = questions[state.currentQuestion];
+      const hasAnswered = !!state.answers[currentQ?.id];
+      const progress = (state.currentQuestion + 1) / questions.length;
+
+      const handleAnswer = (optionId) => {
+        if (!currentQ) return;
+        setAnswer(currentQ.id, optionId);
+      };
+
+      const handleNext = () => {
+        if (state.currentQuestion < questions.length - 1) {
+          setIsTransitioning(true);
+          setTimeout(() => {
+            setCurrentQuestion(state.currentQuestion + 1);
+            setIsTransitioning(false);
+          }, 300);
+        } else {
+          const matches = calculateMatches();
+          addTestResult(matches);
+          onNavigate('result');
+        }
+      };
+
+      const handleBack = () => {
+        if (state.currentQuestion > 0) {
+          setIsTransitioning(true);
+          setTimeout(() => {
+            setCurrentQuestion(state.currentQuestion - 1);
+            setIsTransitioning(false);
+          }, 300);
+        } else {
+          onNavigate('home');
+        }
+      };
+
+      return (
+        <div className="min-h-screen pb-24 pt-6 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+          <div className="max-w-lg mx-auto">
+            <div className="mb-8">
+              <button onClick={handleBack} className="flex items-center gap-2 text-gray-600 hover:text-purple-600 mb-4">
+                <IconComponent name="arrowLeft" />
+                <span className="font-medium">返回</span>
+              </button>
+              
+              <div className="flex items-center justify-between mb-3">
+                <h1 className="text-2xl font-bold text-gray-800">职业测试</h1>
+                <div className="flex items-center gap-2 text-purple-600 font-semibold">
+                  <IconComponent name="sparkles" />
+                  <span>{state.currentQuestion + 1}/{questions.length}</span>
+                </div>
+              </div>
+              
+              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500 rounded-full"
+                  style={{ width: `${progress * 100}%` }}
+                />
+              </div>
+            </div>
+
+            <div className={`bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl transition-all duration-500 ${isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+              {currentQ && (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="text-white"><IconComponent name="sparkles" /></div>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">{currentQ.text}</h2>
+                    <p className="text-gray-500">选择最符合你的答案</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {currentQ.options.map((option) => {
+                      const isSelected = state.answers[currentQ.id] === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => handleAnswer(option.id)}
+                          className={`w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                            isSelected
+                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              : 'border-gray-200 bg-white text-gray-700 hover:border-purple-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{option.text}</span>
+                            {isSelected && <div className="text-purple-500"><IconComponent name="check" /></div>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-8 flex gap-4">
+              <button
+                onClick={handleBack}
+                className="flex-1 py-4 px-6 bg-white text-gray-700 rounded-2xl font-semibold shadow-md hover:bg-gray-50 transition-all duration-300"
+              >
+                上一题
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={!hasAnswered}
+                className={`flex-1 py-4 px-6 rounded-2xl font-semibold shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                  hasAnswered
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-xl'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {state.currentQuestion === questions.length - 1 ? '查看结果' : '下一题'}
+                {state.currentQuestion !== questions.length - 1 && <IconComponent name="arrowRight" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 结果页 ====================
+    const ResultPage = ({ onNavigate }) => {
+      const { state, resetTest } = useAppContext();
+
+      const handleRetest = () => {
+        resetTest();
+        onNavigate('test');
+      };
+
+      return (
+        <div className="min-h-screen pb-24 pt-6 px-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100">
+          <div className="max-w-lg mx-auto">
+            <button
+              onClick={() => onNavigate('home')}
+              className="flex items-center gap-2 text-gray-600 hover:text-purple-600 mb-6"
+            >
+              <IconComponent name="arrowLeft" />
+              <span className="font-medium">返回首页</span>
+            </button>
+
+            <div className="text-center mb-8 animate-fade-in">
+              <div className="relative inline-block mb-6">
+                <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl animate-pulse-custom">
+                  <div className="text-white"><IconComponent name="trophy" /></div>
+                </div>
+              </div>
+              
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">测试完成！🎉</h1>
+              <p className="text-gray-600 text-lg">为你找到最匹配的职业方向</p>
+              <p className="text-gray-500 text-sm mt-2">基于 {questions.length} 道题目深度分析</p>
+            </div>
+
+            <div className="space-y-6 mb-8">
+              {state.currentMatches.length > 0 ? (
+                state.currentMatches.map((match, idx) => (
+                  <div key={match.career.id} className="relative animate-fade-in" style={{ animationDelay: `${idx * 0.2}s` }}>
+                    {idx === 0 && (
+                      <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-lg">
+                        最佳匹配
+                      </div>
+                    )}
+                    <CareerCard 
+                      career={match.career} 
+                      score={match.score}
+                      showDetails={true}
+                      className={idx === 0 ? 'ring-2 ring-purple-300' : ''}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">暂无结果，请先完成测试</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => onNavigate('explore')}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl py-4 px-6 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <IconComponent name="compass" />
+                探索更多职业
+              </button>
+              
+              <button
+                onClick={handleRetest}
+                className="w-full bg-white text-gray-700 rounded-2xl py-4 px-6 font-semibold shadow-md hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <IconComponent name="refresh" />
+                重新测试
+              </button>
+            </div>
+
+            <div className="mt-8 bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
+              <p className="text-gray-600 text-sm">💡 可以将感兴趣的职业加入收藏，方便以后查看</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 职业探索页 ====================
+    const ExplorePage = ({ onNavigate }) => {
+      const [selectedCategory, setSelectedCategory] = useState('全部');
+      const [searchQuery, setSearchQuery] = useState('');
+
+      const categories = ['全部', '科技', '创意', '商业', '医疗', '教育', '社会', '艺术', '科学', '生活'];
+
+      const filteredCareers = careers.filter(career => {
+        const matchesCategory = selectedCategory === '全部' || career.category === selectedCategory;
+        const matchesSearch = career.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             career.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+
+      return (
+        <div className="min-h-screen pb-24 pt-6 px-4 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+          <div className="max-w-lg mx-auto">
+            <div className="mb-6">
+              <button
+                onClick={() => onNavigate('home')}
+                className="flex items-center gap-2 text-gray-600 hover:text-purple-600 mb-4"
+              >
+                <IconComponent name="arrowLeft" />
+                <span className="font-medium">返回</span>
+              </button>
+              
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-blue-500"><IconComponent name="sparkles" /></div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">探索职业</h1>
+                  <p className="text-gray-500">发现你的无限可能（共 {careers.length} 个职业）</p>
+                </div>
+              </div>
+
+              <div className="relative mb-4">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><IconComponent name="search" /></div>
+                <input
+                  type="text"
+                  placeholder="搜索职业..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border-2 border-gray-100 focus:border-purple-300 focus:outline-none shadow-sm"
+                />
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-full whitespace-nowrap font-medium transition-all duration-300 ${
+                      selectedCategory === category
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                        : 'bg-white text-gray-600'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {filteredCareers.length > 0 ? (
+                filteredCareers.map((career) => (
+                  <CareerCard key={career.id} career={career} showDetails={true} />
+                ))
+              ) : (
+                <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-3xl">
+                  <div className="text-gray-300 mb-4"><IconComponent name="sparkles" /></div>
+                  <p className="text-gray-500 text-lg">没有找到匹配的职业</p>
+                  <p className="text-gray-400 text-sm mt-1">试试其他关键词或分类</p>
+                </div>
+              )}
+            </div>
+
+            {filteredCareers.length > 0 && (
+              <div className="mt-6 text-center text-gray-500 text-sm">
+                共找到 {filteredCareers.length} 个职业
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 个人中心页 ====================
+    const ProfilePage = ({ onNavigate }) => {
+      const { state, setUserName } = useAppContext();
+      const [isEditingName, setIsEditingName] = useState(false);
+      const [nameInput, setNameInput] = useState(state.user.name);
+      const [activeTab, setActiveTab] = useState('favorites');
+
+      const favoriteCareers = careers.filter(c => state.user.favorites.includes(c.id));
+
+      const handleSaveName = () => {
+        if (nameInput.trim()) {
+          setUserName(nameInput.trim());
+        }
+        setIsEditingName(false);
+      };
+
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
+      };
+
+      return (
+        <div className="min-h-screen pb-24 pt-6 px-4 bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
+          <div className="max-w-lg mx-auto">
+            <button
+              onClick={() => onNavigate('home')}
+              className="flex items-center gap-2 text-gray-600 hover:text-purple-600 mb-6"
+            >
+              <IconComponent name="arrowLeft" />
+              <span className="font-medium">返回</span>
+            </button>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl mb-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  {state.user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1">
+                  {isEditingName ? (
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      onBlur={handleSaveName}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                      className="flex-1 px-3 py-2 border-2 border-purple-300 rounded-xl focus:outline-none"
+                      autoFocus
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-bold text-gray-800">{state.user.name}</h2>
+                      <button onClick={() => setIsEditingName(true)} className="p-1 hover:bg-gray-100 rounded-full">
+                        <div className="text-gray-400"><IconComponent name="edit" /></div>
+                      </button>
+                    </div>
+                  )}
+                  <p className="text-gray-500">职业探索者</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">{state.user.testHistory.length}</div>
+                  <div className="text-sm text-gray-500">测试次数</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-pink-500">{state.user.favorites.length}</div>
+                  <div className="text-sm text-gray-500">收藏职业</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-500">{careers.length}</div>
+                  <div className="text-sm text-gray-500">职业总数</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setActiveTab('favorites')}
+                className={`flex-1 py-3 px-4 rounded-2xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  activeTab === 'favorites'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg'
+                    : 'bg-white text-gray-600'
+                }`}
+              >
+                <IconComponent name="heart" />
+                收藏夹
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex-1 py-3 px-4 rounded-2xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  activeTab === 'history'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
+                    : 'bg-white text-gray-600'
+                }`}
+              >
+                <IconComponent name="clock" />
+                测试记录
+              </button>
+            </div>
+
+            {activeTab === 'favorites' ? (
+              <div className="space-y-4">
+                {favoriteCareers.length > 0 ? (
+                  favoriteCareers.map((career) => (
+                    <CareerCard key={career.id} career={career} showDetails={true} />
+                  ))
+                ) : (
+                  <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-3xl">
+                    <div className="text-gray-300 mb-4"><IconComponent name="heart" /></div>
+                    <p className="text-gray-500 text-lg">还没有收藏的职业</p>
+                    <p className="text-gray-400 text-sm mt-1">去探索页面发现感兴趣的职业吧</p>
+                    <button
+                      onClick={() => onNavigate('explore')}
+                      className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-medium"
+                    >
+                      开始探索
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {state.user.testHistory.length > 0 ? (
+                  state.user.testHistory.map((record) => (
+                    <div key={record.id} className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 text-gray-500">
+                          <IconComponent name="calendar" />
+                          <span className="text-sm">{formatDate(record.date)}</span>
+                        </div>
+                        <div className="text-yellow-400"><IconComponent name="sparkles" /></div>
+                      </div>
+                      <p className="text-gray-800 font-medium mb-3">你的最佳匹配：</p>
+                      <div className="space-y-3">
+                        {record.matches.slice(0, 2).map((match) => (
+                          <div key={match.career.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <span className="font-medium text-gray-700">{match.career.title}</span>
+                            <span className="text-purple-600 font-bold">{match.score}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-3xl">
+                    <div className="text-gray-300 mb-4"><IconComponent name="calendar" /></div>
+                    <p className="text-gray-500 text-lg">还没有测试记录</p>
+                    <p className="text-gray-400 text-sm mt-1">完成职业测试来获取记录</p>
+                    <button
+                      onClick={() => onNavigate('test')}
+                      className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-medium"
+                    >
+                      开始测试
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // ==================== 主应用 ====================
+    const App = () => {
+      const [currentPage, setCurrentPage] = useState('home');
+
+      const handleNavigate = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const renderPage = () => {
+        switch (currentPage) {
+          case 'test': return <TestPage onNavigate={handleNavigate} />;
+          case 'result': return <ResultPage onNavigate={handleNavigate} />;
+          case 'explore': return <ExplorePage onNavigate={handleNavigate} />;
+          case 'profile': return <ProfilePage onNavigate={handleNavigate} />;
+          default: return <HomePage onNavigate={handleNavigate} />;
+        }
+      };
+
+      return (
+        <AppProvider>
+          <div className="min-h-screen">
+            {renderPage()}
+            <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
+          </div>
+        </AppProvider>
+      );
+    };
+
+    // 渲染应用
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
